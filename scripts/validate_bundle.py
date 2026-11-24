@@ -76,15 +76,20 @@ def check_markdown_links(md_path: Path, repo_root: Path, errors: list[str]) -> N
 def validate_repo(repo_root: Path) -> list[str]:
     errors: list[str] = []
 
-    # Phase 1 hygiene: ensure Antigravity/global-installer files are not prematurely present.
-    for forbidden in ("plugin.json", "mcp_config.json", "scripts/install.sh"):
+    # Hygiene: ensure global-installer scripts are not present in pure source repo.
+    for forbidden in ("scripts/install.sh",):
         if (repo_root / forbidden).exists():
-            errors.append(f"Phase 1 hygiene violation: unexpected file '{forbidden}' exists.")
+            errors.append(f"Hygiene violation: unexpected file '{forbidden}' exists.")
 
     claude_manifest_path = repo_root / ".claude-plugin" / "plugin.json"
     codex_manifest_path = repo_root / ".codex-plugin" / "plugin.json"
+    antigravity_manifest_path = repo_root / "plugin.json"
     manifests: dict[str, dict] = {}
-    for label, path in (("claude", claude_manifest_path), ("codex", codex_manifest_path)):
+    for label, path in (
+        ("claude", claude_manifest_path),
+        ("codex", codex_manifest_path),
+        ("antigravity", antigravity_manifest_path),
+    ):
         if not path.is_file():
             errors.append(f"Missing manifest: {path.relative_to(repo_root)}")
             continue
@@ -102,15 +107,17 @@ def validate_repo(repo_root: Path) -> list[str]:
             errors.append(f"{path.relative_to(repo_root)}: invalid SemVer version '{version}'")
         if not str(data.get("description", "")).strip():
             errors.append(f"{path.relative_to(repo_root)}: empty description")
-        skills_rel = data.get("skills")
-        if not isinstance(skills_rel, str) or not (path.parent.parent / skills_rel).is_dir():
-            errors.append(f"{path.relative_to(repo_root)}: invalid skills directory '{skills_rel}'")
+        if label in ("claude", "codex"):
+            skills_rel = data.get("skills")
+            if not isinstance(skills_rel, str) or not (path.parent.parent / skills_rel).is_dir():
+                errors.append(f"{path.relative_to(repo_root)}: invalid skills directory '{skills_rel}'")
 
-    if "claude" in manifests and "codex" in manifests:
-        if manifests["claude"].get("version") != manifests["codex"].get("version"):
-            errors.append("Version mismatch between .claude-plugin/plugin.json and .codex-plugin/plugin.json")
+    versions = {m.get("version") for m in manifests.values()}
+    if len(manifests) == 3 and len(versions) != 1:
+        errors.append("Version mismatch across .claude-plugin/plugin.json, .codex-plugin/plugin.json, and plugin.json")
 
-    for mcp_rel in (".mcp.json", "mcp/optional/figma.json", "mcp/optional/playwright.json"):
+    mcp_configs: dict[str, dict] = {}
+    for mcp_rel in (".mcp.json", "mcp_config.json", "mcp/optional/figma.json", "mcp/optional/playwright.json"):
         mcp_path = repo_root / mcp_rel
         if not mcp_path.is_file():
             errors.append(f"Missing MCP config: {mcp_rel}")
@@ -122,6 +129,12 @@ def validate_repo(repo_root: Path) -> list[str]:
             continue
         if not isinstance(mcp_data.get("mcpServers"), dict) or not mcp_data["mcpServers"]:
             errors.append(f"{mcp_rel}: must declare non-empty mcpServers object")
+        else:
+            mcp_configs[mcp_rel] = mcp_data["mcpServers"]
+
+    if ".mcp.json" in mcp_configs and "mcp_config.json" in mcp_configs:
+        if mcp_configs[".mcp.json"] != mcp_configs["mcp_config.json"]:
+            errors.append("mcp_config.json mcpServers must match .mcp.json mcpServers")
 
     rules_path = repo_root / "rules" / "AGENTS.md"
     if not rules_path.is_file() or not rules_path.read_text(encoding="utf-8").strip():

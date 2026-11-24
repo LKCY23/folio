@@ -1,12 +1,12 @@
 # folio
 
-面向现代前端开发、UI 设计与数据可视化的跨宿主工作流插件，一套源码服务 **Claude Code**、**Codex**（Phase 1 已落地）与 **Antigravity**（Phase 2 随 `claude-config` 适配后接入）。
+面向现代前端开发、UI 设计与数据可视化的跨宿主工作流插件，一套源码同时服务 **Claude Code**、**Codex** 与 **Antigravity**。
 
 ## 当前状态
 
-- **阶段**：`v0.1.0` 核心实现（Phase 1：Claude Code & Codex 原生插件包体 + 4 个核心 Skills + 静态门禁与自适应视觉验收工具）。
+- **阶段**：`v0.2.0`（Phase 2：新增 Antigravity 原生清单 `plugin.json` 与 `mcp_config.json`，与 Claude Code & Codex 共享 4 个核心 Skills、Rules 与静态/视觉门禁工具）。
 - **分发原则**：严格遵循 [`claudespace`](https://github.com/LKCY23/claudespace) + [`claude-config`](https://github.com/LKCY23/claude-config) 的**单一部署者（Single Deployer）**规范——本仓库只作为纯净上游源码仓，不内置越权的全局安装脚本，也不在根目录手工维护重复的 marketplace 清单。
-- **Antigravity 适配**：待专门的 `claude-config` Antigravity（App + `agy` CLI）受管接入方案与适配器完成后，于 Phase 2 补充 Antigravity 清单并纳入统一部署。
+- **Antigravity 适配**：已提供根目录 `plugin.json`、`mcp_config.json`、`rules/AGENTS.md` 与 `skills/`，支持由 `claude-config`（Phase B）受管部署至 `~/.gemini/config/plugins/`。
 
 ## 核心工作流与工具链
 

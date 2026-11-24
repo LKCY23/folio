@@ -1,0 +1,16 @@
+{
+  "name": "folio",
+  "displayName": "Folio",
+  "version": "0.2.0",
+  "description": "Frontend development, UI design, and ECharts data visualization workflow plugin with 5-scenario routing, DESIGN.md tokens, static UI checks, and adaptive visual verification.",
+  "author": {
+    "name": "LKCY23"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/LKCY23/folio",
+  "suggestedPrompts": [
+    "Design and build a responsive frontend UI with DESIGN.md tokens",
+    "Build an interactive ECharts dashboard with clean typography and visual hierarchy",
+    "Run static UI checks and adaptive visual verification on this page"
+  ]
+}
