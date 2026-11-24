@@ -1,0 +1,10 @@
+{
+  "name": "folio",
+  "version": "0.1.0",
+  "description": "Frontend development, UI design, and ECharts data visualization workflow plugin with 5-scenario routing, DESIGN.md tokens, static UI checks, and adaptive visual verification.",
+  "author": {
+    "name": "LKCY23"
+  },
+  "license": "MIT",
+  "skills": "./skills/"
+}
